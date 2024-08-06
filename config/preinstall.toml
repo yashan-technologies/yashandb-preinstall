@@ -1,0 +1,80 @@
+log_level = "debug"
+
+# 崖山数据库用户相关配置
+[yashandb_user]
+skip_creating_user = false # 是否跳过创建用户
+user = "yashan"
+group = "yashan" # 主用户组
+home = "/home/yashan"
+additional_groups = [
+    "YASDBA",
+] # 附加用户组，后续如果有多个附加组，例如可以设置为：additional_groups = ["YASDBA", "wheel", ...]
+limits = [
+    "soft nofile 65536",
+    "hard nofile 65536",
+    "soft nproc 65536",
+    "hard nproc 65536",
+    "soft rss unlimited",
+    "hard rss unlimited",
+    "soft stack 8192",
+    "hard stack 8192",
+    "soft core unlimited",
+    "hard core unlimited",
+] # 用户资源限制，限制会写入到 /etc/security/limits.d/${user}.conf 文件
+
+# 主机配置
+[host_setting]
+sysctl = [
+    "vm.swappiness = 0",
+    "vm.max_map_count=2000000",
+    "net.ipv4.ip_local_port_range = 32768 60999",
+    "kernel.core_pattern=/data/soft/core/core.%e.%p",
+] # 内核参数配置，配置会写入到 /etc/sysctl.conf 文件
+
+# 磁盘调度器，noop: 无调度器，cfq: 完全公平队列，deadline: 截止时间队列，mq-deadline: 多队列截止时间队列，bfq: 块流量队列
+# HDD：通常更适合使用deadline或cfq，因为它们可以优化机械臂的移动，减少寻道时间。
+# SSD：通常更适合使用noop，因为它减少了不必要的调度开销，允许SSD控制器自己的算法来优化性能。
+disk_scheduler = "noop" # 有些系统可能不支持noop，根据实际情况设置
+
+# FIO测试配置
+[fio]
+size = "10G"
+rw = ["write", "randread"]
+bs = "16k"
+numjobs = "8"
+runtime = "180"
+iodepth = "32"
+direct = "1"
+
+# 资源限制，不满足配置会提示用户
+[limit]
+[limit.hardware] # 硬件资源限制
+cpu_min_cores = 2                       # 最小CPU核数
+memory_min_gb = 4                       # 最小内存GB
+install_path_min_free_gb = 50           # 安装路径最小剩余空间GB（默认检查崖山用户的Home目录，可以通过参数指定其他目录）
+install_path_fs_types = ["ext4", "xfs"] # 推荐的安装路径文件系统类型
+network_min_bandwidth_mbps = 1000       # 最小网络带宽Mbps
+[limit.software] # 软件资源限制
+centos_min_version = "7.6" # 最小CentOS版本
+charset = "UTF-8"          # 字符集
+
+# 操作系统命令定义
+# 默认直接使用命令，如果在$PATH中找不到，可以设置为绝对路径
+[commands]
+bash = "bash"
+useradd = "useradd"
+usermod = "usermod"
+groupadd = "groupadd"
+systemctl = "systemctl"
+iptables = "iptables"
+sudo = "sudo"
+echo = "echo"
+cat = "cat"
+su = "su"
+timedatectl = "timedatectl"
+ulimit = "ulimit"
+sysctl = "sysctl"
+swapoff = "swapoff"
+update_grub = "update-grub"
+grub_mkconfig = ["grub2-mkconfig", "grub-mkconfig"] # 优先使用第一个命令
+# grub_cfg = "/boot/grub/grub.cfg" # grub配置文件路径，如果不设置，会自动查找，如果没有找到或者找到多个路径，可以在此设置
