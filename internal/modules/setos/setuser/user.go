@@ -18,7 +18,7 @@ func AddUser() error {
 	if err != nil {
 		return err
 	}
-	console.OK(fmt.Sprintf("%s用户加入附加组%v", username, supplementaryGroups))
+	console.OK(fmt.Sprintf("将%s用户加入附加组%v", username, supplementaryGroups))
 
 	if !exists {
 		console.OK("创建数据库用户：" + username)

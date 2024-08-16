@@ -19,6 +19,7 @@ import (
 
 func SetYashanDBPath(setDiskQueneScheduler bool) {
 	console.Set("配置YashanDB安装路径")
+	console.Info(fmt.Sprintf("安装目录：%s，您可以通过config/yashandb.toml修改", confdef.YashanDBConf().InstallPath))
 
 	if err := check.CheckRootPrivilege(); err != nil {
 		console.Fail("权限不足，配置安装路径，请使用root用户或者sudo执行")
@@ -81,7 +82,7 @@ func SetYashanDBPath(setDiskQueneScheduler bool) {
 	}
 	for _, dir := range dirs {
 		if err := makePath(dir, uid, gid); err != nil {
-			console.Fail(fmt.Sprintf("创建目录%s失败: %s", dir, err))
+			console.Fail(fmt.Sprintf("创建目录 %s 失败: %s", dir, err))
 			return
 		}
 		console.OK("创建目录：" + dir)
@@ -90,6 +91,7 @@ func SetYashanDBPath(setDiskQueneScheduler bool) {
 	if setDiskQueneScheduler {
 		setScheduler(installPath)
 	}
+	console.Done()
 }
 
 func makePath(path string, uid, gid int) error {
@@ -115,12 +117,12 @@ func setScheduler(installPath string) {
 	}
 	fname, err := osinfoutil.GetDiskQueneSchedulerPath(info.Device)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取磁盘调度器文件失败: %s", err))
+		console.Fail(fmt.Sprintf("获取磁盘队列调度器文件失败: %s", err))
 		return
 	}
 	scheduler := confdef.Conf().HostSetting.DiskScheduler
 	if err := setutil.SetDiskQueneScheduler(log.Sugar, fname, scheduler); err != nil {
-		console.Warn(fmt.Sprintf("设置磁盘调度器失败: %s", err))
+		console.Warn(fmt.Sprintf("设置磁盘队列调度器失败: %s", err))
 	}
-	console.OK(fmt.Sprintf("设置%s所在磁盘调度器为：%s", installPath, scheduler))
+	console.OK(fmt.Sprintf("设置%s所在磁盘队列调度器为：%s", installPath, scheduler))
 }

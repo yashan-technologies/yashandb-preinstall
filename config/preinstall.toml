@@ -31,7 +31,9 @@ sysctl = [
     "kernel.core_pattern=/data/soft/core/core.%e.%p",
 ] # 内核参数配置，配置会写入到 /etc/sysctl.conf 文件
 
-# 磁盘调度器，noop: 无调度器，cfq: 完全公平队列，deadline: 截止时间队列，mq-deadline: 多队列截止时间队列，bfq: 块流量队列
+timezone = "Asia/Shanghai" # 时区，如果系统不是UTC+8时间，则会设置为此时区
+
+# 磁盘队列调度器，noop: 无调度器，cfq: 完全公平队列，deadline: 截止时间队列，mq-deadline: 多队列截止时间队列，bfq: 块流量队列
 # HDD：通常更适合使用deadline或cfq，因为它们可以优化机械臂的移动，减少寻道时间。
 # SSD：通常更适合使用noop，因为它减少了不必要的调度开销，允许SSD控制器自己的算法来优化性能。
 disk_scheduler = "noop" # 有些系统可能不支持noop，根据实际情况设置

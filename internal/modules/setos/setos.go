@@ -10,19 +10,22 @@ import (
 )
 
 func Set(setDiskQueneScheduler bool) {
-	fmt.Println(console.White.Sprint("<========================开始配置系统========================>\n"))
+	fmt.Println(console.White.Sprint("<==============================开始配置系统==============================>\n"))
 	setuser.SetUser()
 	fmt.Println()
 
-	setconf.DisableTransparentHugePageAndNUMA()
+	setyasdb.SetYashanDBPath(setDiskQueneScheduler)
 	fmt.Println()
 
 	setconf.SetUserLimits()
 	fmt.Println()
 
+	setconf.DisableTransparentHugePageAndNUMA()
+	fmt.Println()
+
 	setconf.UpdateSysctl()
 	fmt.Println()
 
-	setyasdb.SetYashanDBPath(setDiskQueneScheduler)
+	setconf.SetTime()
 	fmt.Println()
 }
