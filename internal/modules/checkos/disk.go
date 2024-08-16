@@ -119,7 +119,7 @@ func CheckYashanDBInstallPath(enableIOTest bool) {
 
 	console.OK(fmt.Sprintf("磁盘队列调度器[cat %s]：%s", fname, content))
 
-	runIOTest(enableIOTest, path.Join(installPath, "fio.test"))
+	runIOTest(enableIOTest, path.Join(installPath, "fiotest.preinstall"))
 }
 
 func runIOTest(enableIOTest bool, filename string) {

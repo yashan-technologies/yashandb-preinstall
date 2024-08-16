@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 	"strconv"
+	"strings"
 
 	"preinstall/defines/confdef"
 	"preinstall/internal/modules/modulecommons/check"
@@ -122,7 +123,12 @@ func setScheduler(installPath string) {
 	}
 	scheduler := confdef.Conf().HostSetting.DiskScheduler
 	if err := setutil.SetDiskQueneScheduler(log.Sugar, fname, scheduler); err != nil {
-		console.Warn(fmt.Sprintf("设置磁盘队列调度器失败: %s", err))
+		if strings.Contains(strings.ToLower(err.Error()), "invalid argument") {
+			console.Fail(fmt.Sprintf("磁盘队列调度器%s不支持，您可以通过config/preinstall.toml修改目标调度器", scheduler))
+			return
+		}
+		console.Fail(fmt.Sprintf("设置磁盘队列调度器失败: %s", err))
+		return
 	}
 	console.OK(fmt.Sprintf("设置%s所在磁盘队列调度器为：%s", installPath, scheduler))
 }
