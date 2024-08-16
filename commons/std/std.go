@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	_fname = "console.out"
+	CONSOLE_OUT_FILE = "preinstall.out"
 )
 
 var _redirecter *stdutil.Redirecter
@@ -38,5 +38,5 @@ func WriteToFileAndStdout(str string) {
 }
 
 func genOutput() string {
-	return path.Join(runtimedef.LogPath(), _fname+fmt.Sprintf(".%s", time.Now().Format(timedef.TIME_FORMAT_NO_SPACE)))
+	return path.Join(runtimedef.ResultPath(), CONSOLE_OUT_FILE+fmt.Sprintf(".%s", time.Now().Format(timedef.TIME_FORMAT_NO_SPACE)))
 }
