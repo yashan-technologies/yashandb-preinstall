@@ -2,8 +2,11 @@ package internal
 
 import (
 	"fmt"
+	"path"
 
 	"preinstall/commons/flags"
+	"preinstall/commons/std"
+	"preinstall/defines/runtimedef"
 	"preinstall/internal/modules/checkos"
 	"preinstall/internal/modules/setos"
 )
@@ -20,8 +23,9 @@ func (a *App) Preinstall() {
 		setos.Set(a.SetDiskQueneScheduler)
 	}
 	checkos.Check(a.EnableIOTest)
-	fmt.Println("部署前配置检查已完成，请检查失败或告警信息。")
+	fmt.Printf("部署前配置检查已完成，请检查失败或告警信息（结果存放路径：%s.*）。\n",
+		path.Join(runtimedef.ResultPath(), std.CONSOLE_OUT_FILE))
 	if !a.EnableIOTest {
-		fmt.Println("如果有需要，您可以使用 -i 参数在安装路径磁盘进行I/O性能测试。")
+		fmt.Println("另外，如果有需要您可以使用 -i 参数在安装路径磁盘进行I/O性能测试。")
 	}
 }

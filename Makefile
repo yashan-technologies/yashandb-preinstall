@@ -25,11 +25,12 @@ BUILD_PATH=./build
 PKG_PATH=$(BUILD_PATH)/$(PKG_PERFIX)
 BIN_PATH=$(PKG_PATH)/bin
 LOG_PATH=$(PKG_PATH)/log
+RESULT_PATH=$(PKG_PATH)/result
 DOCS_PATH=$(PKG_PATH)/docs
 PLUGINS_PATH=$(PKG_PATH)/plugins
 BIN_PREINSTALL=$(BUILD_PATH)/preinstall
 BIN_FILES=$(BIN_PREINSTALL)
-DIR_TO_MAKE=$(BIN_PATH) $(LOG_PATH) $(DOCS_PATH) $(PLUGINS_PATH)
+DIR_TO_MAKE=$(BIN_PATH) $(LOG_PATH) $(RESULT_PATH) $(DOCS_PATH) $(PLUGINS_PATH)
 FILE_TO_COPY=./config
 
 
@@ -39,7 +40,6 @@ build: pre_build go_build
 	@./.resolve-goimports.sh -q
 	@mv $(BIN_FILES) $(BIN_PATH)
 	@> $(LOG_PATH)/preinstall.log
-	@> $(LOG_PATH)/console.out
 	@cd $(PKG_PATH);ln -s ./bin/preinstall ./preinstall
 	@cd $(BUILD_PATH);tar -cvzf $(PKG) $(PKG_PERFIX)/
 

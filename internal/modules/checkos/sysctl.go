@@ -14,6 +14,10 @@ func CheckSysctlConf() {
 
 	stdout, err := setutil.ReadSysctlConf(log.Sugar)
 	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "permission denied") {
+			console.Fail("权限不足，无法检查内核参数配置，请使用root用户或者sudo执行")
+			return
+		}
 		console.Fail("读取内核参数配置失败：" + err.Error())
 		return
 	}

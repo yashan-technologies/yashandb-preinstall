@@ -14,6 +14,7 @@ const (
 const (
 	_DIR_CONF    = "config"
 	_DIR_LOG     = "log"
+	_DIR_RESULT  = "result"
 	_DIR_PLUGINS = "plugins"
 )
 
@@ -29,6 +30,10 @@ func ConfPath() string {
 
 func LogPath() string {
 	return path.Join(_home, _DIR_LOG)
+}
+
+func ResultPath() string {
+	return path.Join(_home, _DIR_RESULT)
 }
 
 func PluginsPath() string {
