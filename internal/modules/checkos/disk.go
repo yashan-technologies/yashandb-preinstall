@@ -135,7 +135,7 @@ func runIOTest(enableIOTest bool, filename string) {
 		out, err := fio.Run(log.Sugar)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "permission denied") {
-				console.Fail(fmt.Sprintf("[%s]模式测试失败: 根据Fio的权限规则，当前用户无权限对 %s 进行测试", mode, filename))
+				console.Fail(fmt.Sprintf("[%s]模式测试失败: 当前用户无权限对 %s 进行测试，请使用root用户或sudo执行", mode, filename))
 				return
 			}
 			console.Fail(fmt.Sprintf("[%s]模式磁盘I/O性能测试失败: \n%s", mode, err))

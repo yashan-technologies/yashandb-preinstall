@@ -23,7 +23,7 @@ func SetYashanDBPath(setDiskQueneScheduler bool) {
 	console.Info(fmt.Sprintf("安装目录：%s，您可以通过config/yashandb.toml修改", confdef.YashanDBConf().InstallPath))
 
 	if err := check.CheckRootPrivilege(); err != nil {
-		console.Fail("权限不足，配置安装路径，请使用root用户或者sudo执行")
+		console.Fail("权限不足，无法配置安装路径，请使用root用户或者sudo执行")
 		return
 	}
 

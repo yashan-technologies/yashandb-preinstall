@@ -30,6 +30,7 @@ func CheckSSH() {
 		ssher := sshutil.NewSSH(h.IP, h.Port, h.User, h.Password)
 		if err := ssher.CheckSSHConnection(); err != nil {
 			console.Fail(fmt.Sprintf("SSH连接[%s]失败: %s", h.IP, err))
+			continue
 		}
 		console.OK(fmt.Sprintf("SSH连接[%s]成功", h.IP))
 	}
