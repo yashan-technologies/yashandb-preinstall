@@ -20,5 +20,8 @@ func (a *App) Preinstall() {
 		setos.Set(a.SetDiskQueneScheduler)
 	}
 	checkos.Check(a.EnableIOTest)
-	fmt.Println("部署前配置检查已完成，需要您检查失败或告警信息......")
+	fmt.Println("部署前配置检查已完成，请检查失败或告警信息。")
+	if !a.EnableIOTest {
+		fmt.Println("如果有需要，您可以使用 -i 参数在安装路径磁盘进行I/O性能测试。")
+	}
 }

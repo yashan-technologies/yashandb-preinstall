@@ -49,3 +49,18 @@ func SetTimezone(log yaslog.YasLog, timezone string) error {
 	}
 	return nil
 }
+
+func SetNtp(log yaslog.YasLog, enable bool) error {
+	exexer := executil.NewExecer(log)
+	var value string
+	if enable {
+		value = "true"
+	} else {
+		value = "false"
+	}
+	ret, stdout, stderr := exexer.Exec(_timedatectl, "set-ntp", value)
+	if ret != 0 {
+		return executil.GenerateError(stdout, stderr)
+	}
+	return nil
+}

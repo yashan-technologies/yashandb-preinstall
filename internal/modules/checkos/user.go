@@ -49,6 +49,8 @@ func CheckYashanDBUser() {
 		}
 		if !userutil.CheckSudoForUser(log.Sugar, user.Username) {
 			console.Warn(fmt.Sprintf("数据库用户 %s 无sudo权限，需要手动配置 /etc/sudoers", user.Username))
+		} else {
+			console.OK("Sudo权限：已配置")
 		}
 	}()
 

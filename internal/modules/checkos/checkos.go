@@ -7,7 +7,7 @@ import (
 )
 
 func Check(enableIOTest bool) {
-	fmt.Println(console.White.Sprint("<========================开始检查系统========================>\n"))
+	fmt.Println(console.White.Sprint("<==============================开始检查系统==============================>\n"))
 	checkHardWare()
 	checkSoftware(enableIOTest)
 }
@@ -27,7 +27,6 @@ func checkHardWare() {
 }
 
 func checkSoftware(enableIOTest bool) {
-
 	CheckFirewall()
 	fmt.Println()
 
@@ -40,9 +39,9 @@ func checkSoftware(enableIOTest bool) {
 	CheckYashanDBUser()
 	fmt.Println()
 
-	CheckYashanDBInstallPath(enableIOTest)
+	CheckUlimit()
 	fmt.Println()
 
-	CheckUlimit()
+	CheckYashanDBInstallPath(enableIOTest)
 	fmt.Println()
 }

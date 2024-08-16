@@ -51,6 +51,7 @@ type Limit struct {
 
 type HostSetting struct {
 	Sysctl        []string `toml:"sysctl"`
+	Timezone      string   `toml:"timezone"`
 	DiskScheduler string   `toml:"disk_scheduler"`
 }
 
