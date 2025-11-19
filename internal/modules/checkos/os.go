@@ -8,18 +8,19 @@ import (
 
 	"preinstall/defines/confdef"
 	"preinstall/defines/runtimedef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/utils/sysutil/osinfoutil"
 )
 
 func CheckOS() {
-	console.Check("OS操作系统")
+	console.Check(i18n.T("os.check"))
 	info, err := osinfoutil.GetOSInfo()
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取操作系统信息失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("os.get_info_fail"), err))
 		return
 	}
-	console.OK(fmt.Sprintf("操作系统：%s", info.String()))
+	console.OK(fmt.Sprintf(i18n.T("os.info"), info.String()))
 
 	switch runtimedef.GetOSPlatform() {
 	case "centos":
@@ -27,12 +28,12 @@ func CheckOS() {
 	}
 
 	lang := os.Getenv("LANG")
-	console.OK(fmt.Sprintf("语言字符集：%s", lang))
+	console.OK(fmt.Sprintf(i18n.T("os.charset"), lang))
 	items := strings.Split(lang, ".")
 	if len(items) > 1 {
 		charset := confdef.Conf().Limit.Software.Charset
 		if items[1] != charset {
-			console.Warn(fmt.Sprintf("字符集不为%s，请确认字符集是否符合要求", charset))
+			console.Warn(fmt.Sprintf(i18n.T("os.charset_warn"), charset))
 		}
 	}
 
@@ -63,19 +64,19 @@ func parseCentosVersion(version string) []int64 {
 func checkCentosVersion(info osinfoutil.OSInfo) {
 	versions := parseCentosVersion(info.PlatformVersion)
 	if versions == nil {
-		console.Fail(fmt.Sprintf("解析CentOS版本：%s失败", info.PlatformVersion))
+		console.Fail(fmt.Sprintf(i18n.T("os.parse_version_fail"), info.PlatformVersion))
 		return
 	}
 	centosMinVersion := confdef.Conf().Limit.Software.CentosMinVersion
 	minVersions := parseCentosVersion(centosMinVersion)
 	if minVersions == nil {
-		console.Fail(fmt.Sprintf("解析CentOS最低版本：%s失败", centosMinVersion))
+		console.Fail(fmt.Sprintf(i18n.T("os.parse_min_version_fail"), centosMinVersion))
 		return
 	}
 	// 对比版本号
 	if versions[0] < minVersions[0] ||
 		(versions[0] == minVersions[0] && versions[1] < minVersions[1]) {
-		console.Fail(fmt.Sprintf("当前CentOS版本：%s，最低要求CentOS版本：%s", info.PlatformVersion, centosMinVersion))
+		console.Fail(fmt.Sprintf(i18n.T("os.version_too_low"), info.PlatformVersion, centosMinVersion))
 		return
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/check"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
@@ -19,11 +20,11 @@ import (
 )
 
 func SetYashanDBPath(setDiskQueneScheduler bool) {
-	console.Set("配置YashanDB安装路径")
-	console.Info(fmt.Sprintf("安装目录：%s，您可以通过config/yashandb.toml修改", confdef.YashanDBConf().InstallPath))
+	console.Set(i18n.T("set.yasdb_path.title"))
+	console.Info(fmt.Sprintf(i18n.T("set.yasdb_path.info"), confdef.YashanDBConf().InstallPath))
 
 	if err := check.CheckRootPrivilege(); err != nil {
-		console.Fail("权限不足，无法配置安装路径，请使用root用户或者sudo执行")
+		console.Fail(i18n.T("set.yasdb_path.no_privilege"))
 		return
 	}
 
@@ -31,24 +32,24 @@ func SetYashanDBPath(setDiskQueneScheduler bool) {
 	username := confdef.Conf().YashanDBUser.User
 	user, err := userutil.GetUserByName(username)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取用户信息失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.get_user_fail"), err))
 		return
 	}
 	uid, err := strconv.Atoi(user.Uid)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取用户uid失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.get_uid_fail"), err))
 		return
 	}
 	gid, err := strconv.Atoi(user.Gid)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取用户gid失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.get_gid_fail"), err))
 		return
 	}
 
 	if len(installPath) == 0 {
-		console.Warn(fmt.Sprintf("未指定安装路径，使用%s用户的Home目录", username))
+		console.Warn(fmt.Sprintf(i18n.T("set.yasdb_path.use_home"), username))
 		if !userutil.IsUserExists(username) {
-			console.Fail(fmt.Sprintf("用户%s不存在，获取Home目录", username))
+			console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.user_not_exist"), username))
 			return
 		}
 		installPath = user.HomeDir
@@ -56,11 +57,11 @@ func SetYashanDBPath(setDiskQueneScheduler bool) {
 
 	if !fs.IsDirExist(confdef.YashanDBConf().InstallPath) {
 		makePath(confdef.YashanDBConf().InstallPath, uid, gid)
-		console.OK("创建安装路径：" + confdef.YashanDBConf().InstallPath)
+		console.OK(fmt.Sprintf(i18n.T("set.yasdb_path.created"), confdef.YashanDBConf().InstallPath))
 	} else {
-		console.OK("安装路径已存在：" + confdef.YashanDBConf().InstallPath)
+		console.OK(fmt.Sprintf(i18n.T("set.yasdb_path.exist"), confdef.YashanDBConf().InstallPath))
 		if err := fileutil.ReverseChmod(confdef.YashanDBConf().InstallPath, 0755); err != nil {
-			console.Fail("修改安装路径权限失败：" + err.Error())
+			console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.chmod_fail"), err.Error()))
 			return
 		}
 	}
@@ -83,10 +84,10 @@ func SetYashanDBPath(setDiskQueneScheduler bool) {
 	}
 	for _, dir := range dirs {
 		if err := makePath(dir, uid, gid); err != nil {
-			console.Fail(fmt.Sprintf("创建目录 %s 失败: %s", dir, err))
+			console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.create_dir_fail"), dir, err))
 			return
 		}
-		console.OK("创建目录：" + dir)
+		console.OK(fmt.Sprintf(i18n.T("set.yasdb_path.dir_created"), dir))
 	}
 
 	if setDiskQueneScheduler {
@@ -113,22 +114,22 @@ func makePath(path string, uid, gid int) error {
 func setScheduler(installPath string) {
 	info, err := osinfoutil.GetDiskInfoByPath(installPath)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取安装路径信息失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.get_disk_fail"), err))
 		return
 	}
 	fname, err := osinfoutil.GetDiskQueneSchedulerPath(info.Device)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取磁盘队列调度器文件失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.get_scheduler_fail"), err))
 		return
 	}
 	scheduler := confdef.Conf().HostSetting.DiskScheduler
 	if err := setutil.SetDiskQueneScheduler(log.Sugar, fname, scheduler); err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "invalid argument") {
-			console.Fail(fmt.Sprintf("磁盘队列调度器%s不支持，您可以通过config/preinstall.toml修改目标调度器", scheduler))
+			console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.scheduler_not_support"), scheduler))
 			return
 		}
-		console.Fail(fmt.Sprintf("设置磁盘队列调度器失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.set_scheduler_fail"), err))
 		return
 	}
-	console.OK(fmt.Sprintf("设置%s所在磁盘队列调度器为：%s", installPath, scheduler))
+	console.OK(fmt.Sprintf(i18n.T("set.yasdb_path.scheduler_set"), installPath, scheduler))
 }

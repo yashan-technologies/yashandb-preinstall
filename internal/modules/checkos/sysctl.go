@@ -1,8 +1,10 @@
 package checkos
 
 import (
+	"fmt"
 	"strings"
 
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
 	"preinstall/utils/sysutil/osinfoutil"
@@ -10,47 +12,47 @@ import (
 )
 
 func CheckSysctlConf() {
-	console.Check("检查内核参数配置")
+	console.Check(i18n.T("sysctl.check"))
 
 	stdout, err := setutil.ReadSysctlConf(log.Sugar)
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "permission denied") {
-			console.Fail("权限不足，无法检查内核参数配置，请使用root用户或者sudo执行")
+			console.Fail(i18n.T("sysctl.no_privilege"))
 			return
 		}
-		console.Fail("读取内核参数配置失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("sysctl.read_fail"), err.Error()))
 		return
 	}
 
-	console.OK("内核参数配置[sysctl -p]：\n" + strings.TrimRight(stdout, "\n"))
+	console.OK(fmt.Sprintf(i18n.T("sysctl.config"), strings.TrimRight(stdout, "\n")))
 
 	vmSwappiness, err := osinfoutil.CheckVMSwappiness(log.Sugar)
 	if err != nil {
-		console.Fail("检查vm.swappiness配置失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("sysctl.check_fail"), "vm.swappiness", err.Error()))
 		return
 	}
-	console.OK("[cat /proc/sys/vm/swappiness]：" + vmSwappiness)
+	console.OK(fmt.Sprintf(i18n.T("sysctl.param_value"), "vm.swappiness", vmSwappiness))
 
 	vmMaxMapCount, err := osinfoutil.CheckVMMaxMapCount(log.Sugar)
 	if err != nil {
-		console.Fail("检查vm.max_map_count配置失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("sysctl.check_fail"), "vm.max_map_count", err.Error()))
 		return
 	}
-	console.OK("[cat /proc/sys/vm/max_map_count]：" + vmMaxMapCount)
+	console.OK(fmt.Sprintf(i18n.T("sysctl.param_value"), "vm.max_map_count", vmMaxMapCount))
 
 	netIPLocalPortRange, err := osinfoutil.CheckNetIPLocalPortRange(log.Sugar)
 	if err != nil {
-		console.Fail("检查net.ipv4.ip_local_port_range配置失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("sysctl.check_fail"), "net.ipv4.ip_local_port_range", err.Error()))
 		return
 	}
-	console.OK("[cat /proc/sys/net/ipv4/ip_local_port_range]：" + netIPLocalPortRange)
+	console.OK(fmt.Sprintf(i18n.T("sysctl.param_value"), "net.ipv4.ip_local_port_range", netIPLocalPortRange))
 
 	kernelCorePattern, err := osinfoutil.CheckKernelCorePattern(log.Sugar)
 	if err != nil {
-		console.Fail("检查kernel.core_pattern配置失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("sysctl.check_fail"), "kernel.core_pattern", err.Error()))
 		return
 	}
-	console.OK("[cat /proc/sys/kernel/core_pattern]：" + kernelCorePattern)
+	console.OK(fmt.Sprintf(i18n.T("sysctl.param_value"), "kernel.core_pattern", kernelCorePattern))
 
-	console.Warn("请根据实际情况检查内核参数配置是否符合要求，特别是CoreDump配置（kernel.core_pattern）\n需要确保路径存在并且权限正确，以及考虑是否影响其他用户的应用程序")
+	console.Warn(i18n.T("sysctl.check_warn"))
 }

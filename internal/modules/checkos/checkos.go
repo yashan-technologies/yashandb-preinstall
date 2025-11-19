@@ -3,11 +3,12 @@ package checkos
 import (
 	"fmt"
 
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 )
 
 func Check(enableIOTest bool) {
-	fmt.Println(console.White.Sprint("<==============================开始检查系统==============================>\n"))
+	fmt.Println(console.White.Sprint(i18n.T("main.start_check") + "\n"))
 	checkHardWare()
 	checkSoftware(enableIOTest)
 }

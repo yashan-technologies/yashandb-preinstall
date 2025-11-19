@@ -11,8 +11,9 @@ const (
 
 type Globals struct {
 	// normal flags
-	Version kong.VersionFlag `short:"v"     help:"Show version."`
-	Config  string           `name:"config" short:"c"            default:"./config/preinstall.toml" help:"Configuration file."`
+	Version  kong.VersionFlag `short:"v"     help:"Show version."`
+	Config   string           `name:"config" short:"c"            default:"./config/preinstall.toml" help:"Configuration file."`
+	Language string           `name:"lang"   short:"l"            default:"zh"                       help:"Set language (zh/en)."`
 	// hidden flags
 	Show showFlag `name:"show" hidden:"true" help:"[Hidden] Show software compilation information."`
 }

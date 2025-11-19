@@ -9,6 +9,7 @@ import (
 	"preinstall/defines/compiledef"
 	"preinstall/defines/confdef"
 	"preinstall/defines/runtimedef"
+	"preinstall/i18n"
 	"preinstall/internal"
 	"preinstall/log"
 
@@ -24,7 +25,7 @@ func main() {
 	var app internal.App
 	options := flags.NewAppOptions(_APP_NAME, _APP_DESCRIPTION, compiledef.GetAPPVersion())
 	ctx := kong.Parse(&app, options...)
-	if err := initApp(app); err != nil {
+	if err := initApp(&app); err != nil {
 		ctx.FatalIfErrorf(err)
 	}
 	finalize := std.GetRedirecter().RedirectStd()
@@ -41,8 +42,13 @@ func initLogger(logPath, level string) error {
 	return log.InitLogger(_APP_NAME, log.NewLogOption(optFuncs...))
 }
 
-func initApp(app internal.App) error {
-	// 首先初始化运行时环境
+func initApp(app *internal.App) error {
+	// 首先初始化i18n
+	if err := i18n.Init(app.Language); err != nil {
+		return err
+	}
+
+	// 初始化运行时环境
 	if err := runtimedef.InitRuntime(); err != nil {
 		return err
 	}

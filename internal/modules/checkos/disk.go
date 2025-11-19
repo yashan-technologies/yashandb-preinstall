@@ -7,6 +7,7 @@ import (
 
 	"preinstall/defines/confdef"
 	"preinstall/defines/runtimedef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/check"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
@@ -20,18 +21,18 @@ import (
 )
 
 func CheckYashanDBInstallPath(enableIOTest bool) {
-	console.Check("数据库安装路径")
+	console.Check(i18n.T("disk.check"))
 	installPath := confdef.YashanDBConf().InstallPath
 	username := confdef.Conf().YashanDBUser.User
 	if len(installPath) == 0 {
-		console.Warn(fmt.Sprintf("未指定安装路径，使用%s用户的Home目录", username))
+		console.Warn(fmt.Sprintf(i18n.T("set.yasdb_path.use_home"), username))
 		if !userutil.IsUserExists(username) {
-			console.Fail(fmt.Sprintf("用户%s不存在，无法获取Home目录", username))
+			console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.user_not_exist"), username))
 			return
 		}
 		user, err := userutil.GetUserByName(username)
 		if err != nil {
-			console.Fail(fmt.Sprintf("获取用户信息失败: %s", err))
+			console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.get_user_fail"), err))
 			return
 		}
 		installPath = user.HomeDir
@@ -39,23 +40,23 @@ func CheckYashanDBInstallPath(enableIOTest bool) {
 
 	info, err := osinfoutil.GetDiskInfoByPath(installPath)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取安装路径信息失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("disk.get_info_fail"), err))
 		return
 	}
 
 	var checkFreeSpace bool
 	usage, err := disk.Usage(info.Mountpoint)
 	if err != nil {
-		console.OK("安装路径：" + installPath)
-		console.OK("磁盘/分区：" + info.Device)
-		console.OK("文件系统：" + info.Fstype)
-		console.Fail(fmt.Sprintf("获取安装路径的可用空间失败: %s", err))
+		console.OK(fmt.Sprintf(i18n.T("disk.install_path"), installPath))
+		console.OK(fmt.Sprintf(i18n.T("disk.device"), info.Device))
+		console.OK(fmt.Sprintf(i18n.T("disk.fs_type"), info.Fstype))
+		console.Fail(fmt.Sprintf(i18n.T("disk.get_info_fail"), err))
 	} else {
 		checkFreeSpace = true
-		console.OK("安装路径：" + installPath)
-		console.OK("磁盘/分区：" + info.Device)
-		console.OK("文件系统：" + info.Fstype)
-		console.OK("可用空间：" + size.GenHumanReadableSize(float64(usage.Free), 2))
+		console.OK(fmt.Sprintf(i18n.T("disk.install_path"), installPath))
+		console.OK(fmt.Sprintf(i18n.T("disk.device"), info.Device))
+		console.OK(fmt.Sprintf(i18n.T("disk.fs_type"), info.Fstype))
+		console.OK(fmt.Sprintf(i18n.T("disk.free"), size.GenHumanReadableSize(float64(usage.Free), 2)))
 	}
 
 	var fsTypeMatched bool
@@ -66,22 +67,22 @@ func CheckYashanDBInstallPath(enableIOTest bool) {
 		}
 	}
 	if !fsTypeMatched {
-		console.Warn(fmt.Sprintf("安装路径的文件系统为：%s，建议您使用 %s 类型的文件系统", info.Fstype,
-			console.Green.Sprint(strings.Join(confdef.Conf().Limit.Hardware.InstallPathFsTypes, "、"))))
+		console.Warn(fmt.Sprintf(i18n.T("disk.fs_type_warn"), info.Fstype,
+			strings.Join(confdef.Conf().Limit.Hardware.InstallPathFsTypes, ", ")))
 	}
 
 	if checkFreeSpace {
 		minFreeSpace := uint64(confdef.Conf().Limit.Hardware.InstallPathMinFreeGB) * 1024 * 1024 * 1024
 		if usage.Free < minFreeSpace {
-			console.Warn(fmt.Sprintf("安装路径的磁盘可用空间为：%s，建议您保留 %s 及以上的可用空间",
+			console.Warn(fmt.Sprintf(i18n.T("disk.free_space_warn"),
 				size.GenHumanReadableSize(float64(usage.Free), 2),
-				console.Green.Sprintf("%dG", confdef.Conf().Limit.Hardware.InstallPathMinFreeGB)))
+				fmt.Sprintf("%dG", confdef.Conf().Limit.Hardware.InstallPathMinFreeGB)))
 			check.AddCheckCount()
 		}
 	}
 
 	if !fs.IsDirExist(installPath) {
-		console.Warn(fmt.Sprintf("安装路径%s不存在或无权限访问，请检查", installPath))
+		console.Warn(fmt.Sprintf(i18n.T("disk.path_not_exist"), installPath))
 	}
 	yasdbHome := confdef.YashanDBConf().YasdbHome
 	yasdbData := confdef.YashanDBConf().YasdbData
@@ -101,23 +102,23 @@ func CheckYashanDBInstallPath(enableIOTest bool) {
 	}
 	for _, dir := range dirs {
 		if !fs.IsDirExist(dir) {
-			console.Warn(fmt.Sprintf("目录 %s 不存在或无权限访问，请检查", dir))
+			console.Warn(fmt.Sprintf(i18n.T("disk.dir_not_exist"), dir))
 		}
 	}
 
 	fname, err := osinfoutil.GetDiskQueneSchedulerPath(info.Device)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取磁盘队列调度器文件失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.yasdb_path.get_scheduler_fail"), err))
 		return
 	}
 
 	content, err := osinfoutil.GetDiskQueneScheduler(fname)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取磁盘队列调度器失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("disk.get_scheduler_fail"), err))
 		return
 	}
 
-	console.OK(fmt.Sprintf("磁盘队列调度器[cat %s]：%s", fname, content))
+	console.OK(fmt.Sprintf(i18n.T("disk.scheduler"), content))
 
 	runIOTest(enableIOTest, path.Join(installPath, "fiotest.preinstall"))
 }
@@ -126,21 +127,21 @@ func runIOTest(enableIOTest bool, filename string) {
 	if !enableIOTest {
 		return
 	}
-	console.Info(fmt.Sprintf("开始进行磁盘I/O性能测试，测试文件：%s，这将会花费一些时间。", filename))
+	console.Info(fmt.Sprintf(i18n.T("disk.io_testing"), filename))
 	cmd := runtimedef.Fio()
 	c := confdef.Conf().Fio
 	for _, mode := range c.RWMode {
-		console.Info(fmt.Sprintf("开始进行[%s]模式的磁盘I/O性能测试......", mode))
+		console.Info(fmt.Sprintf(i18n.T("disk.io_mode_testing"), mode))
 		fio := fioutil.NewFio(cmd, filename, c.Size, mode, c.BlockSize, c.NumJobs, c.RunTime, c.IODepth, c.Direct)
 		out, err := fio.Run(log.Sugar)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "permission denied") {
-				console.Fail(fmt.Sprintf("[%s]模式测试失败: 当前用户无权限对 %s 进行测试，请使用root用户或sudo执行", mode, filename))
+				console.Fail(fmt.Sprintf(i18n.T("disk.io_permission_fail"), mode, filename))
 				return
 			}
-			console.Fail(fmt.Sprintf("[%s]模式磁盘I/O性能测试失败: \n%s", mode, err))
+			console.Fail(fmt.Sprintf(i18n.T("disk.io_fail"), mode, err))
 			return
 		}
-		console.OK(fmt.Sprintf("[%s]模式磁盘I/O性能测试结果: %s", mode, out))
+		console.OK(fmt.Sprintf(i18n.T("disk.io_result"), mode, out))
 	}
 }

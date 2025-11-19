@@ -1,7 +1,10 @@
 package setuser
 
 import (
+	"fmt"
+
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
 	"preinstall/utils/sysutil/userutil"
@@ -15,9 +18,9 @@ func AddGroups() error {
 		return err
 	}
 	if exists {
-		console.OK("主用户组已存在：" + primaryGroup)
+		console.OK(fmt.Sprintf(i18n.T("set.user.primary_group_exist"), primaryGroup))
 	} else {
-		console.OK("创建主用户组：" + primaryGroup)
+		console.OK(fmt.Sprintf(i18n.T("set.user.primary_group_created"), primaryGroup))
 	}
 
 	for _, group := range supplementaryGroups {
@@ -26,9 +29,9 @@ func AddGroups() error {
 			return err
 		}
 		if exists {
-			console.OK("附加用户组已存在：" + group)
+			console.OK(fmt.Sprintf(i18n.T("set.user.supplementary_group_exist"), group))
 		} else {
-			console.OK("创建附加用户组：" + group)
+			console.OK(fmt.Sprintf(i18n.T("set.user.supplementary_group_created"), group))
 		}
 	}
 	return nil

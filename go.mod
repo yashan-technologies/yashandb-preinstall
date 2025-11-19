@@ -1,17 +1,21 @@
 module preinstall
 
-go 1.19
+go 1.23.0
+
+toolchain go1.23.2
 
 require (
 	git.yasdb.com/go/yaserr v0.1.0
 	git.yasdb.com/go/yaslog v0.0.0-20230531092234-0b27ba7c86fe
 	git.yasdb.com/go/yasutil v0.0.0-20240806013246-f08f450f2caf
-	github.com/BurntSushi/toml v1.4.0
+	github.com/BurntSushi/toml v1.5.0
 	github.com/alecthomas/kong v0.9.0
 	github.com/jaypipes/ghw v0.12.0
 	github.com/jedib0t/go-pretty/v6 v6.5.9
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/shirou/gopsutil/v3 v3.24.5
 	golang.org/x/crypto v0.18.0
+	golang.org/x/text v0.23.0
 	gopkg.in/ini.v1 v1.67.0
 )
 

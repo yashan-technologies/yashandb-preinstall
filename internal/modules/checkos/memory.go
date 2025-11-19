@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/check"
 	"preinstall/internal/modules/modulecommons/console"
 
@@ -12,20 +13,20 @@ import (
 )
 
 func CheckMemory() {
-	console.Check("Memory内存")
+	console.Check(i18n.T("memory.check"))
 	v, err := mem.VirtualMemory()
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取内存信息失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("memory.get_info_fail"), err))
 		return
 	}
 
-	console.OK("内存容量：" + size.GenHumanReadableSize(float64(v.Total), 2))
-	console.OK("可用内存：" + size.GenHumanReadableSize(float64(v.Available), 2))
+	console.OK(fmt.Sprintf(i18n.T("memory.total"), size.GenHumanReadableSize(float64(v.Total), 2)))
+	console.OK(fmt.Sprintf(i18n.T("memory.available"), size.GenHumanReadableSize(float64(v.Available), 2)))
 
 	minMemory := uint64(confdef.Conf().Limit.Hardware.MemoryMinGB) * 1024 * 1024 * 1024
 	if v.Total < minMemory {
-		console.Warn(fmt.Sprintf("设备内存总量为：%s，建议您使用 %s 及以上配置的机器",
-			size.GenHumanReadableSize(float64(v.Total), 2), console.Green.Sprintf("%dG", confdef.Conf().Limit.Hardware.MemoryMinGB)))
+		console.Warn(fmt.Sprintf(i18n.T("memory.warn"),
+			size.GenHumanReadableSize(float64(v.Total), 2), fmt.Sprintf("%dG", confdef.Conf().Limit.Hardware.MemoryMinGB)))
 		check.AddCheckCount()
 	}
 }

@@ -5,25 +5,26 @@ import (
 	"strings"
 
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
 	"preinstall/utils/sysutil/userutil"
 )
 
 func CheckYashanDBUser() {
-	console.Check("数据库用户检查")
+	console.Check(i18n.T("user.check"))
 	userExists := true
 	if !userutil.IsUserExists(confdef.Conf().YashanDBUser.User) {
 		userExists = false
-		console.Warn(fmt.Sprintf("数据库用户 %s 不存在", confdef.Conf().YashanDBUser.User))
+		console.Warn(fmt.Sprintf(i18n.T("user.not_exist"), confdef.Conf().YashanDBUser.User))
 	}
 
 	if !userutil.IsGroupExists(confdef.Conf().YashanDBUser.Group) {
-		console.Warn(fmt.Sprintf("数据库用户组 %s 不存在", confdef.Conf().YashanDBUser.Group))
+		console.Warn(fmt.Sprintf(i18n.T("user.group_not_exist"), confdef.Conf().YashanDBUser.Group))
 	}
 	for _, group := range confdef.Conf().YashanDBUser.AdditionalGroups {
 		if !userutil.IsGroupExists(group) {
-			console.Warn(fmt.Sprintf("数据库用户附加组 %s 不存在", group))
+			console.Warn(fmt.Sprintf(i18n.T("user.additional_group_not_exist"), group))
 		}
 	}
 
@@ -32,34 +33,34 @@ func CheckYashanDBUser() {
 	}
 	user, err := userutil.GetUserByName(confdef.Conf().YashanDBUser.User)
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取用户 %s 信息失败: %s", confdef.Conf().YashanDBUser.User, err.Error()))
+		console.Fail(fmt.Sprintf(i18n.T("user.get_info_fail"), confdef.Conf().YashanDBUser.User, err.Error()))
 		return
 	}
 	primaryGroup, err := userutil.GetGroupByID(user.Gid)
 	if err != nil {
-		console.OK("数据库用户：" + user.Username)
-		console.OK("家目录：" + user.HomeDir)
-		console.Fail(fmt.Sprintf("获取用户 %s 主组信息失败: %s", confdef.Conf().YashanDBUser.User, err.Error()))
+		console.OK(fmt.Sprintf(i18n.T("user.exist"), user.Username))
+		console.OK(fmt.Sprintf(i18n.T("user.home"), user.HomeDir))
+		console.Fail(fmt.Sprintf(i18n.T("user.get_primary_group_fail"), confdef.Conf().YashanDBUser.User, err.Error()))
 		return
 	}
 
 	defer func() {
 		if primaryGroup.Name != confdef.Conf().YashanDBUser.Group {
-			console.Warn(fmt.Sprintf("数据库用户 %s 主用户组 %s 与配置文件中的主用户组 %s 不一致", user.Username, primaryGroup.Name, confdef.Conf().YashanDBUser.Group))
+			console.Warn(fmt.Sprintf(i18n.T("user.primary_group_mismatch"), user.Username, primaryGroup.Name, confdef.Conf().YashanDBUser.Group))
 		}
 		if !userutil.CheckSudoForUser(log.Sugar, user.Username) {
-			console.Warn(fmt.Sprintf("数据库用户 %s 无sudo权限，需要手动配置 /etc/sudoers", user.Username))
+			console.Warn(fmt.Sprintf(i18n.T("user.no_sudo"), user.Username))
 		} else {
-			console.OK("Sudo权限：已配置")
+			console.OK(i18n.T("user.sudo_configured"))
 		}
 	}()
 
 	gids, err := user.GroupIds()
 	if err != nil {
-		console.OK("数据库用户：" + user.Username)
-		console.OK("主用户组：" + primaryGroup.Name)
-		console.OK("家目录：" + user.HomeDir)
-		console.Fail(fmt.Sprintf("获取用户 %s 附加用户组信息失败: %s", user.Username, err.Error()))
+		console.OK(fmt.Sprintf(i18n.T("user.exist"), user.Username))
+		console.OK(fmt.Sprintf(i18n.T("user.primary_group"), primaryGroup.Name))
+		console.OK(fmt.Sprintf(i18n.T("user.home"), user.HomeDir))
+		console.Fail(fmt.Sprintf(i18n.T("user.get_additional_groups_fail"), user.Username, err.Error()))
 		return
 	}
 
@@ -71,23 +72,23 @@ func CheckYashanDBUser() {
 		}
 		group, err := userutil.GetGroupByID(gid)
 		if err != nil {
-			console.OK("数据库用户：" + user.Username)
-			console.OK("主用户组：" + primaryGroup.Name)
-			console.OK("家目录：" + user.HomeDir)
-			console.Fail(fmt.Sprintf("获取用户 %s 附加组信息失败: %s", user.Username, err.Error()))
+			console.OK(fmt.Sprintf(i18n.T("user.exist"), user.Username))
+			console.OK(fmt.Sprintf(i18n.T("user.primary_group"), primaryGroup.Name))
+			console.OK(fmt.Sprintf(i18n.T("user.home"), user.HomeDir))
+			console.Fail(fmt.Sprintf(i18n.T("user.get_group_info_fail"), user.Username, err.Error()))
 			return
 		}
 		names = append(names, group.Name)
 		nameMap[group.Name] = struct{}{}
 	}
-	console.OK("数据库用户：" + user.Username)
-	console.OK("主用户组：" + primaryGroup.Name)
-	console.OK("附加用户组：" + strings.Join(names, ", "))
-	console.OK("家目录：" + user.HomeDir)
+	console.OK(fmt.Sprintf(i18n.T("user.exist"), user.Username))
+	console.OK(fmt.Sprintf(i18n.T("user.primary_group"), primaryGroup.Name))
+	console.OK(fmt.Sprintf(i18n.T("user.additional_groups"), strings.Join(names, ", ")))
+	console.OK(fmt.Sprintf(i18n.T("user.home"), user.HomeDir))
 
 	for _, group := range confdef.Conf().YashanDBUser.AdditionalGroups {
 		if _, ok := nameMap[group]; !ok {
-			console.Warn(fmt.Sprintf("数据库用户 %s 未被加入附加组 %s", user.Username, group))
+			console.Warn(fmt.Sprintf(i18n.T("user.not_in_group"), user.Username, group))
 		}
 	}
 }
