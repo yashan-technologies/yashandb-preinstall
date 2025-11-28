@@ -1,19 +1,21 @@
 package setconf
 
 import (
+	"fmt"
 	"strings"
 
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/check"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/utils/sysutil/setutil"
 )
 
 func SetUserLimits() {
-	console.Set("配置用户资源限制")
+	console.Set(i18n.T("set.limit.title"))
 
 	if err := check.CheckRootPrivilege(); err != nil {
-		console.Fail("权限不足，无法修改用户资源限制，请使用root用户或者sudo执行")
+		console.Fail(i18n.T("set.limit.no_privilege"))
 		return
 	}
 
@@ -24,9 +26,9 @@ func SetUserLimits() {
 	}
 
 	if err := setutil.SetUserLimits(username, limits, true); err != nil {
-		console.Fail("设置用户限制失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("set.limit.fail"), err.Error()))
 		return
 	}
-	console.OK("配置用户资源限制[/etc/security/limits.d/" + username + ".conf]")
+	console.OK(fmt.Sprintf(i18n.T("set.limit.success"), username))
 	console.Done()
 }

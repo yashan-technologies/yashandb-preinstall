@@ -5,6 +5,7 @@ import (
 	"runtime"
 
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/check"
 	"preinstall/internal/modules/modulecommons/console"
 
@@ -12,25 +13,25 @@ import (
 )
 
 func CheckCPU() {
-	console.Check("CPU处理器")
+	console.Check(i18n.T("cpu.check"))
 	c, err := cpu.Info()
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取CPU信息失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("cpu.get_info_fail"), err))
 		return
 	}
 	if len(c) == 0 {
-		console.Fail("未获取到CPU信息")
+		console.Fail(i18n.T("cpu.no_info"))
 		return
 	}
 	info := c[0]
 	info.Cores = int32(runtime.NumCPU())
-	console.OK("厂商：" + info.VendorID)
-	console.OK("名称：" + info.ModelName)
-	console.OK("核心：" + fmt.Sprint(info.Cores) + " Cores")
+	console.OK(fmt.Sprintf(i18n.T("cpu.vendor"), info.VendorID))
+	console.OK(fmt.Sprintf(i18n.T("cpu.model"), info.ModelName))
+	console.OK(fmt.Sprintf(i18n.T("cpu.cores"), info.Cores))
 
 	minCores := int32(confdef.Conf().Limit.Hardware.CPUMinCores)
 	if info.Cores < minCores {
-		console.Warn(fmt.Sprintf("设备CPU核心数为：%d，建议您使用 %s 核心及以上配置的机器", info.Cores, console.Green.Sprint(minCores)))
+		console.Warn(fmt.Sprintf(i18n.T("cpu.cores_warn"), info.Cores, minCores))
 		check.AddCheckCount()
 	}
 }

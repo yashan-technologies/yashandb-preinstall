@@ -1,11 +1,13 @@
 package setconf
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"strings"
 
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/check"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
@@ -15,24 +17,24 @@ import (
 )
 
 func UpdateSysctl() {
-	console.Set("配置内核参数")
+	console.Set(i18n.T("set.sysctl.title"))
 	if err := check.CheckRootPrivilege(); err != nil {
-		console.Fail("权限不足，无法修改内核参数，请使用root用户或者sudo执行")
+		console.Fail(i18n.T("set.sysctl.no_privilege"))
 		return
 	}
 
 	if err := setutil.UpdateSysctlConf(log.Sugar, confdef.Conf().HostSetting.Sysctl...); err != nil {
-		console.Fail("配置内核参数失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("set.sysctl.fail"), err.Error()))
 		return
 	}
-	console.OK("备份内核参数[/etc/sysctl.conf.preinstall-bak.*]")
-	console.OK("配置内核参数[/etc/sysctl.conf]")
+	console.OK(i18n.T("set.sysctl.backup"))
+	console.OK(i18n.T("set.sysctl.success"))
 
 	if err := setutil.Swapoff(log.Sugar); err != nil {
-		console.Fail("关闭交换分区失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("set.sysctl.swapoff_fail"), err.Error()))
 		return
 	}
-	console.OK("关闭交换分区[swapoff -a]")
+	console.OK(i18n.T("set.sysctl.swapoff_success"))
 
 	for _, value := range confdef.Conf().HostSetting.Sysctl {
 		items := strings.Split(value, "=")
@@ -44,14 +46,14 @@ func UpdateSysctl() {
 		// 获取CoreDump的路径
 		dir := path.Dir(value)
 		if err := fs.Mkdir(dir); err != nil {
-			console.Fail("创建CoreDump目录失败：" + err.Error())
+			console.Fail(fmt.Sprintf(i18n.T("set.sysctl.coredump_dir_fail"), err.Error()))
 			return
 		}
 		if err := os.Chmod(dir, 0777); err != nil {
-			console.Fail("设置CoreDump目录权限失败：" + err.Error())
+			console.Fail(fmt.Sprintf(i18n.T("set.sysctl.coredump_chmod_fail"), err.Error()))
 			return
 		}
-		console.OK("创建CoreDump目录[" + dir + "]")
+		console.OK(fmt.Sprintf(i18n.T("set.sysctl.coredump_success"), dir))
 	}
 
 	console.Done()

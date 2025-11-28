@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"preinstall/defines/runtimedef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
 	"preinstall/utils/sysutil/osinfoutil"
@@ -11,23 +12,23 @@ import (
 )
 
 func CheckFirewall() {
-	console.Check("防火墙配置")
+	console.Check(i18n.T("firewall.check"))
 	active, status, err := osinfoutil.GetFirewallStatus(log.Sugar, runtimedef.GetOSPlatform())
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取防火墙状态失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("firewall.get_status_fail"), err))
 	}
-	console.OK(fmt.Sprintf("防火墙状态[systemctl is-active %s]: %s", osinfoutil.GetFirewallName(runtimedef.GetOSPlatform()), status))
+	console.OK(fmt.Sprintf(i18n.T("firewall.status"), status))
 
 	if active {
-		defer console.Warn("防火墙开启，相关配置可能会影响网络通信，建议配置合适的端口规则或者关闭防火墙")
+		defer console.Warn(i18n.T("firewall.warn"))
 		if !userutil.IsCurrentUserRoot() {
-			console.Fail("权限不足，无法查看防火墙规则，请使用root用户或者sudo执行")
+			console.Fail(i18n.T("firewall.no_privilege"))
 			return
 		}
 		output, err := osinfoutil.ShowIPTables(log.Sugar)
 		if err != nil {
-			console.Fail(fmt.Sprintf("获取防火墙规则失败: %s", err))
+			console.Fail(fmt.Sprintf(i18n.T("firewall.get_rules_fail"), err))
 		}
-		console.OK(fmt.Sprintf("防火墙规则[iptables -L]: \n%s", output))
+		console.OK(fmt.Sprintf(i18n.T("firewall.rules"), output))
 	}
 }

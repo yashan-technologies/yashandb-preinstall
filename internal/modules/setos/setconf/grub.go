@@ -3,6 +3,7 @@ package setconf
 import (
 	"fmt"
 
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/check"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
@@ -18,50 +19,51 @@ const (
 )
 
 func DisableTransparentHugePageAndNUMA() {
-	console.Set("关闭透明大页和NUMA")
+	console.Set(i18n.T("set.grub.title"))
 
 	if err := check.CheckRootPrivilege(); err != nil {
-		console.Fail("权限不足，无法修改相关配置，请使用root用户或者sudo执行")
+		console.Fail(i18n.T("set.grub.no_privilege"))
 		return
 	}
 
 	kd, err := iniutil.LoadKeyData(grub_config_path, key_grub_cmdline_linux)
 	if err != nil {
-		console.Fail("读取grub配置文件失败：" + err.Error())
+		console.Fail(fmt.Sprintf(i18n.T("set.grub.read_fail"), err.Error()))
 		return
 	}
 
 	if err := kd.Backup(); err != nil {
-		console.Fail(fmt.Sprintf("备份grub配置文件失败：%s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.grub.backup_fail"), err))
 		return
 	}
-	console.OK("备份grub配置文件[/ect/default/grub.preinstall-bak.*]")
+	console.OK(i18n.T("set.grub.backup_success"))
 
 	if err := kd.Append(key_grub_cmdline_linux, transparent_hugepage_value, numa_value); err != nil {
-		console.Fail(fmt.Sprintf("更新grub配置文件失败：%s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.grub.update_fail"), err))
 		return
 	}
-	console.OK(fmt.Sprintf("更新grub配置文件[/ect/default/grub]\n    └─ %s 配置增加 %v", key_grub_cmdline_linux, []string{transparent_hugepage_value, numa_value}))
+	console.OK(fmt.Sprintf(i18n.T("set.grub.update_success"), key_grub_cmdline_linux, []string{transparent_hugepage_value, numa_value}))
 
 	files, err := setutil.UpdateGrubConfig(log.Sugar)
 	if err != nil {
 		if err == setutil.ErrMultipleGrubCfg {
-			console.Fail(fmt.Sprintf("找到多个grub.cfg：%v，请在配置文件中指定具体的grub.cfg", files))
+			console.Fail(fmt.Sprintf(i18n.T("set.grub.multiple_cfg"), files))
 			return
 		}
-		console.Fail(fmt.Sprintf("重新生成grub.cfg失败：%s", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.grub.regen_fail"), err))
 		return
 	}
 	if len(files) > 0 {
-		console.OK(fmt.Sprintf("重新生成[%s]", files[0]))
+		console.OK(fmt.Sprintf(i18n.T("set.grub.regen_success"), files[0]))
 	} else {
-		console.OK("重新生成grub.cfg")
+		console.OK(i18n.T("set.grub.regen_success_default"))
 	}
 
 	if err := setutil.SetTransparentHugePageEnabledToNever(log.Sugar); err != nil {
-		console.Fail(fmt.Sprintf("关闭透明大页失败：%s，您可以使用root用户执行：echo never > /sys/kernel/mm/transparent_hugepage/enabled", err))
+		console.Fail(fmt.Sprintf(i18n.T("set.grub.thp_fail"), err))
 		return
 	}
-	console.OK("关闭透明大页[echo never > /sys/kernel/mm/transparent_hugepage/enabled]")
+	console.OK(i18n.T("set.grub.thp_success"))
+	console.Warn(i18n.T("set.grub.reboot_tip"))
 	console.Done()
 }

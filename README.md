@@ -5,6 +5,8 @@
 适⽤于崖山数据库⽣产环境部署的环境配置检查⼯具，
 简化安装数据库前的环境配置检查动作，标准化基础环境部署流程。
 
+**支持多语言：中文、英文** 🌍
+
 ## 特性
 
 ### 配置环境
@@ -31,8 +33,11 @@
 ```bash
 # 推荐使用root用户或者sudo执行命令，无权限的项目会跳过并且打印提示信息
 
-# 进行环境配置检查
+# 进行环境配置检查（默认中文）
 sudo ./preinstall
+
+# 使用英文界面
+sudo ./preinstall -l en
 
 # 附加进行I/O测试
 sudo ./preinstall -i
@@ -46,6 +51,26 @@ sudo ./preinstall -o
 # 查看帮助信息
 ./preinstall -h
 ```
+
+### 多语言支持
+
+工具支持三种语言界面：
+
+- **中文** (zh) - 默认语言
+- **English** (en) - 英文
+
+使用 `-l` 或 `--lang` 参数指定语言：
+
+```bash
+# 中文（默认）
+sudo ./preinstall -l zh
+
+# 英文
+sudo ./preinstall -l en
+
+```
+
+更多详情请参考 [i18n/README.md](i18n/README.md)
 
 ### 修改崖山数据库配置
 

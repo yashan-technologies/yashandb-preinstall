@@ -3,6 +3,7 @@ package setos
 import (
 	"fmt"
 
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/internal/modules/setos/setconf"
 	"preinstall/internal/modules/setos/setuser"
@@ -10,7 +11,7 @@ import (
 )
 
 func Set(setDiskQueneScheduler bool) {
-	fmt.Println(console.White.Sprint("<==============================开始配置系统==============================>\n"))
+	fmt.Println(console.White.Sprint(i18n.T("main.start_set") + "\n"))
 	setuser.SetUser()
 	fmt.Println()
 

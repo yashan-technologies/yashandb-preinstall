@@ -5,6 +5,7 @@ import (
 
 	"preinstall/defines/confdef"
 	"preinstall/defines/runtimedef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
 	"preinstall/utils/sshutil"
@@ -12,26 +13,26 @@ import (
 )
 
 func CheckSSH() {
-	console.Check("SSH服务")
+	console.Check(i18n.T("ssh.check"))
 	active, status, err := osinfoutil.GetSshdStatus(log.Sugar, runtimedef.GetOSPlatform())
 	if err != nil {
-		console.Fail(fmt.Sprintf("获取SSH服务状态失败: %s", err))
+		console.Fail(fmt.Sprintf(i18n.T("ssh.get_status_fail"), err))
 	}
-	console.OK(fmt.Sprintf("SSH服务状态[systemctl is-active %s]: %s", osinfoutil.GetSshServiceName(runtimedef.GetOSPlatform()), status))
+	console.OK(fmt.Sprintf(i18n.T("ssh.status"), status))
 
 	if !active {
-		console.Warn("SSH服务异常，请检查")
+		console.Warn(i18n.T("ssh.service_warn"))
 	}
 
 	if len(confdef.YashanDBConf().Hosts) > 0 {
-		console.Info("SSH连接测试......")
+		console.Info(i18n.T("ssh.testing"))
 	}
 	for _, h := range confdef.YashanDBConf().Hosts {
 		ssher := sshutil.NewSSH(h.IP, h.Port, h.User, h.Password)
 		if err := ssher.CheckSSHConnection(); err != nil {
-			console.Fail(fmt.Sprintf("SSH连接[%s]失败: %s", h.IP, err))
+			console.Fail(fmt.Sprintf(i18n.T("ssh.connect_fail"), h.IP, err))
 			continue
 		}
-		console.OK(fmt.Sprintf("SSH连接[%s]成功", h.IP))
+		console.OK(fmt.Sprintf(i18n.T("ssh.connect_success"), h.IP))
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"preinstall/defines/confdef"
+	"preinstall/i18n"
 	"preinstall/internal/modules/modulecommons/console"
 	"preinstall/log"
 	"preinstall/utils/sysutil/userutil"
@@ -18,13 +19,13 @@ func AddUser() error {
 	if err != nil {
 		return err
 	}
-	console.OK(fmt.Sprintf("将%s用户加入附加组%v", username, supplementaryGroups))
+	console.OK(fmt.Sprintf(i18n.T("set.user.add_to_groups"), username, supplementaryGroups))
 
 	if !exists {
-		console.OK("创建数据库用户：" + username)
-		console.Warn("创建用户完成，请使用passwd命令修改数据库用户密码")
+		console.OK(fmt.Sprintf(i18n.T("set.user.created"), username))
+		console.Warn(i18n.T("set.user.passwd_tip"))
 	} else {
-		console.OK("数据库用户已存在：" + username)
+		console.OK(fmt.Sprintf(i18n.T("set.user.exist"), username))
 	}
 
 	return nil

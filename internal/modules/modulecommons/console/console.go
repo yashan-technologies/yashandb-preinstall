@@ -3,6 +3,8 @@ package console
 import (
 	"fmt"
 
+	"preinstall/i18n"
+
 	"github.com/jedib0t/go-pretty/v6/text"
 )
 
@@ -16,19 +18,19 @@ var (
 )
 
 func Set(msg string) {
-	fmt.Println(Magenta.Sprint("[SET]"), White.Sprint(msg))
+	fmt.Println(Magenta.Sprint(i18n.T("console.set")), White.Sprint(msg))
 }
 
 func Info(msg string) {
-	fmt.Println(White.Sprint("[INFO]"), msg)
+	fmt.Println(White.Sprint(i18n.T("console.info")), msg)
 }
 
 func Check(msg string) {
-	fmt.Println(Bule.Sprint("[CHECK]"), White.Sprint(msg))
+	fmt.Println(Bule.Sprint(i18n.T("console.check")), White.Sprint(msg))
 }
 
 func Warn(msg string) {
-	fmt.Println(Yellow.Sprint("[WARN]"), msg)
+	fmt.Println(Yellow.Sprint(i18n.T("console.warn")), msg)
 }
 
 func OK(msg string) {
@@ -40,5 +42,5 @@ func Fail(msg string) {
 }
 
 func Done() {
-	fmt.Println(White.Sprint("[DONE]"))
+	fmt.Println(White.Sprint(i18n.T("console.done")))
 }
