@@ -67,6 +67,7 @@ type Fio struct {
 
 type Config struct {
 	LogLevel     string       `toml:"log_level"`
+	Language     string       `toml:"language"`
 	YashanDBUser YashanDBUser `toml:"yashandb_user"`
 	HostSetting  HostSetting  `toml:"host_setting"`
 	Fio          Fio          `toml:"fio"`

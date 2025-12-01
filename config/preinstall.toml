@@ -1,4 +1,5 @@
 log_level = "debug"
+language = "zh" # 语言设置 (zh/en)，可通过命令行参数 --lang 覆盖
 
 # 崖山数据库用户相关配置
 [yashandb_user]
