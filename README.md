@@ -70,7 +70,7 @@ sudo ./preinstall -l en
 
 ```
 
-更多详情请参考 [i18n/README.md](i18n/README.md)
+还可以通过配置文件的language配置来指定语言
 
 ### 修改崖山数据库配置
 

@@ -43,18 +43,28 @@ func initLogger(logPath, level string) error {
 }
 
 func initApp(app *internal.App) error {
-	// 首先初始化i18n
-	if err := i18n.Init(app.Language); err != nil {
-		return err
-	}
-
 	// 初始化运行时环境
 	if err := runtimedef.InitRuntime(); err != nil {
 		return err
 	}
 
-	// 再加载配置文件
+	// 加载配置文件
 	if err := confdef.InitConfig(app.Config); err != nil {
+		return err
+	}
+
+	// 确定最终使用的语言：命令行参数优先，否则使用配置文件中的设置，最后默认为 "zh"
+	language := app.Language
+	if language == "" {
+		// 命令行未指定，使用配置文件中的设置
+		language = confdef.Conf().Language
+	}
+	if language == "" {
+		// 配置文件也未设置，使用默认值
+		language = "zh"
+	}
+	// 初始化i18n
+	if err := i18n.Init(language); err != nil {
 		return err
 	}
 
